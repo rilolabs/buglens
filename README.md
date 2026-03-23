@@ -11,8 +11,7 @@ Copy and paste this prompt into your coding agent (Claude Code, Cursor, etc.):
 > 1. Run `npm install git+ssh://git@github-consulting:rilolabs/buglens.git`
 > 2. Create an API route at `app/api/buglens/report/route.ts` using `createBugLensHandler` from `buglens/next`. Wire the `authorize` callback into this project's existing server-side auth to verify the user and return their email.
 > 3. Add `<BugLensProvider>` to the app's root or dashboard layout. If this project has a role-based auth system, set `canReport` to only show the widget to admins. If not, leave it as the default (always visible).
-> 4. Add the BugLens Tailwind content path so styles compile correctly.
-> 5. Tell me which env vars I need to add to `.env.local` for BugLens. Don't ask me for the values — I'll configure them myself.
+> 4. Tell me which env vars I need to add to `.env.local` for BugLens. Don't ask me for the values — I'll configure them myself.
 
 The agent will read the README, understand your project's auth system, and wire everything up accordingly.
 
@@ -108,23 +107,6 @@ LINEAR_BUGLENS_PROJECT_ID=<optional-project-uuid>
 3. Select the label — UUID copied
 
 > **Tip:** The **Cmd+K > "Copy model UUID"** trick works for teams, projects, labels, cycles, and most Linear entities. The results are context-sensitive — navigate to the entity's page first.
-
-### 5. Add Tailwind content path
-
-BugLens uses Tailwind classes. Add the dist path so they get compiled:
-
-**Tailwind v4** (CSS):
-```css
-@source "../node_modules/buglens/dist";
-```
-
-**Tailwind v3** (`tailwind.config.js`):
-```js
-content: [
-  './src/**/*.{ts,tsx}',
-  './node_modules/buglens/dist/**/*.{js,mjs}',
-]
-```
 
 ## What it captures
 

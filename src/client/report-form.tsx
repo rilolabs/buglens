@@ -7,7 +7,26 @@ import { useBugLens } from './provider'
 import type { BugLensReport, Severity } from './types'
 import { SEVERITY_LABELS } from './types'
 
-const textareaClasses = 'w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500'
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  borderRadius: 6,
+  border: '1px solid rgb(209, 213, 219)',
+  padding: '8px 12px',
+  fontSize: 14,
+  color: 'rgb(17, 24, 39)',
+  backgroundColor: 'white',
+  outline: 'none',
+  fontFamily: 'inherit',
+  resize: 'vertical' as const,
+}
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 500,
+  color: 'rgb(17, 24, 39)',
+  display: 'block',
+  marginBottom: 6,
+}
 
 interface BugLensReportFormProps {
   open: boolean
@@ -27,6 +46,7 @@ export function BugLensReportForm({
   const [expectedBehavior, setExpectedBehavior] = useState('')
   const [severity, setSeverity] = useState<Severity>('minor')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitHover, setSubmitHover] = useState(false)
 
   const handleSubmit = async () => {
     if (!description.trim()) return
@@ -61,34 +81,56 @@ export function BugLensReportForm({
   return (
     <Dialog.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[9999] bg-black/40" data-buglens />
+        <Dialog.Overlay
+          data-buglens
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          }}
+        />
         <Dialog.Content
           data-buglens
-          className="fixed right-0 top-0 z-[10000] flex h-full w-[400px] flex-col bg-white shadow-xl dark:bg-gray-900"
+          style={{
+            position: 'fixed',
+            right: 0,
+            top: 0,
+            zIndex: 10000,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            width: 400,
+            backgroundColor: 'white',
+            boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.12)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+          }}
         >
-          <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-            <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          {/* Header */}
+          <div style={{ borderBottom: '1px solid rgb(229, 231, 235)', padding: '16px 24px' }}>
+            <Dialog.Title style={{ fontSize: 18, fontWeight: 600, color: 'rgb(17, 24, 39)', margin: 0 }}>
               Report an Issue
             </Dialog.Title>
-            <Dialog.Description className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <Dialog.Description style={{ marginTop: 4, fontSize: 14, color: 'rgb(107, 114, 128)' }}>
               Tell us what went wrong. A screenshot and technical details are captured automatically.
             </Dialog.Description>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            <div className="flex flex-col gap-4">
+          {/* Body */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {screenshot && (
-                <div className="overflow-hidden rounded-md border border-gray-200 dark:border-gray-700">
+                <div style={{ borderRadius: 6, border: '1px solid rgb(229, 231, 235)', overflow: 'hidden' }}>
                   <img
                     src={screenshot}
                     alt="Page screenshot"
-                    className="h-auto max-h-40 w-full object-cover object-top"
+                    style={{ width: '100%', height: 'auto', maxHeight: 160, objectFit: 'cover', objectPosition: 'top', display: 'block' }}
                   />
                 </div>
               )}
 
-              <div className="space-y-2">
-                <label htmlFor="buglens-description" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <div>
+                <label htmlFor="buglens-description" style={labelStyle}>
                   What happened?
                 </label>
                 <textarea
@@ -98,12 +140,12 @@ export function BugLensReportForm({
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   autoFocus
-                  className={textareaClasses}
+                  style={inputStyle}
                 />
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="buglens-expected" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <div>
+                <label htmlFor="buglens-expected" style={labelStyle}>
                   What did you expect to see?
                 </label>
                 <textarea
@@ -112,37 +154,67 @@ export function BugLensReportForm({
                   value={expectedBehavior}
                   onChange={(e) => setExpectedBehavior(e.target.value)}
                   rows={2}
-                  className={textareaClasses}
+                  style={inputStyle}
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <div>
+                <label style={labelStyle}>
                   How urgent is this?
                 </label>
                 <Select.Root value={severity} onValueChange={(val) => setSeverity(val as Severity)}>
-                  <Select.Trigger className="flex h-9 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                  <Select.Trigger
+                    style={{
+                      display: 'flex',
+                      height: 36,
+                      width: '100%',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderRadius: 6,
+                      border: '1px solid rgb(209, 213, 219)',
+                      backgroundColor: 'white',
+                      padding: '0 12px',
+                      fontSize: 14,
+                      color: 'rgb(17, 24, 39)',
+                      cursor: 'pointer',
+                      outline: 'none',
+                    }}
+                  >
                     <Select.Value />
                     <Select.Icon>
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-gray-500">
-                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke="rgb(107, 114, 128)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </Select.Icon>
                   </Select.Trigger>
                   <Select.Portal>
                     <Select.Content
-                      className="z-[10001] overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                      data-buglens
                       position="popper"
                       sideOffset={4}
-                      data-buglens
+                      style={{
+                        zIndex: 10001,
+                        overflow: 'hidden',
+                        borderRadius: 6,
+                        border: '1px solid rgb(229, 231, 235)',
+                        backgroundColor: 'white',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                      }}
                     >
-                      <Select.Viewport className="p-1">
+                      <Select.Viewport style={{ padding: 4 }}>
                         {(Object.entries(SEVERITY_LABELS) as [Severity, string][]).map(
                           ([value, label]) => (
                             <Select.Item
                               key={value}
                               value={value}
-                              className="cursor-pointer rounded px-3 py-2 text-sm text-gray-900 outline-none data-[highlighted]:bg-blue-50 data-[highlighted]:text-blue-900 dark:text-gray-100 dark:data-[highlighted]:bg-blue-900/30 dark:data-[highlighted]:text-blue-200"
+                              style={{
+                                cursor: 'pointer',
+                                borderRadius: 4,
+                                padding: '8px 12px',
+                                fontSize: 14,
+                                color: 'rgb(17, 24, 39)',
+                                outline: 'none',
+                              }}
                             >
                               <Select.ItemText>{label}</Select.ItemText>
                             </Select.Item>
@@ -156,16 +228,36 @@ export function BugLensReportForm({
             </div>
           </div>
 
-          <div className="border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+          {/* Footer */}
+          <div style={{ borderTop: '1px solid rgb(229, 231, 235)', padding: '16px 24px' }}>
             <button
               onClick={handleSubmit}
+              onMouseEnter={() => setSubmitHover(true)}
+              onMouseLeave={() => setSubmitHover(false)}
               disabled={!description.trim() || isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+              style={{
+                display: 'flex',
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                borderRadius: 6,
+                backgroundColor: (!description.trim() || isSubmitting)
+                  ? 'rgb(147, 167, 228)'
+                  : submitHover ? 'rgb(29, 78, 216)' : 'rgb(37, 99, 235)',
+                padding: '8px 16px',
+                fontSize: 14,
+                fontWeight: 500,
+                color: 'white',
+                border: 'none',
+                cursor: (!description.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
+                transition: 'background-color 150ms ease',
+              }}
             >
               {isSubmitting ? (
-                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity="0.25" />
+                  <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" opacity="0.75" />
                 </svg>
               ) : (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -176,6 +268,9 @@ export function BugLensReportForm({
               Submit Issue
             </button>
           </div>
+
+          {/* Keyframe for spinner */}
+          <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

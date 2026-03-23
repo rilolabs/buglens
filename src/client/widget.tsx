@@ -31,6 +31,8 @@ export function BugLensWidget() {
   const [mode, setMode] = useState<Mode>('idle')
   const [captured, setCaptured] = useState<CapturedData | null>(INITIAL_CAPTURE)
   const [isCapturing, setIsCapturing] = useState(false)
+  const [fabHover, setFabHover] = useState(false)
+  const [cancelHover, setCancelHover] = useState(false)
   const selectedElementRef = useRef<Element | null>(null)
 
   const handleElementSelected = useCallback(async (element: Element) => {
@@ -80,9 +82,28 @@ export function BugLensWidget() {
       {mode === 'idle' && (
         <button
           onClick={() => setMode('inspecting')}
+          onMouseEnter={() => setFabHover(true)}
+          onMouseLeave={() => setFabHover(false)}
           title="Report an issue"
           data-buglens
-          className="fixed bottom-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-blue-500/50 bg-blue-500/10 shadow-lg transition-all hover:bg-blue-500/20 hover:shadow-xl"
+          style={{
+            position: 'fixed',
+            bottom: 16,
+            right: 16,
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            border: '1px solid rgba(59, 130, 246, 0.5)',
+            backgroundColor: fabHover ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+            boxShadow: fabHover ? '0 10px 25px -3px rgba(0,0,0,0.15)' : '0 4px 12px -1px rgba(0,0,0,0.1)',
+            cursor: 'pointer',
+            transition: 'all 150ms ease',
+            padding: 0,
+          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -90,11 +111,10 @@ export function BugLensWidget() {
             height="16"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
+            stroke="rgb(37, 99, 235)"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-blue-600 dark:text-blue-400"
           >
             <path d="m8 2 1.88 1.88" />
             <path d="M14.12 3.88 16 2" />
@@ -112,13 +132,48 @@ export function BugLensWidget() {
       )}
 
       {mode === 'inspecting' && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2" data-buglens>
-          <span className="rounded-full bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-lg">
+        <div
+          data-buglens
+          style={{
+            position: 'fixed',
+            bottom: 16,
+            right: 16,
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <span
+            style={{
+              borderRadius: 9999,
+              backgroundColor: 'rgb(37, 99, 235)',
+              padding: '6px 12px',
+              fontSize: 12,
+              fontWeight: 500,
+              color: 'white',
+              boxShadow: '0 4px 12px -1px rgba(0,0,0,0.1)',
+            }}
+          >
             {isCapturing ? 'Capturing...' : 'Click an element to report'}
           </span>
           <button
             onClick={handleCancel}
-            className="h-8 rounded-full border border-gray-300 bg-white px-3 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            onMouseEnter={() => setCancelHover(true)}
+            onMouseLeave={() => setCancelHover(false)}
+            style={{
+              height: 32,
+              borderRadius: 9999,
+              border: '1px solid rgb(209, 213, 219)',
+              backgroundColor: cancelHover ? 'rgb(243, 244, 246)' : 'white',
+              padding: '0 12px',
+              fontSize: 12,
+              fontWeight: 500,
+              color: 'rgb(55, 65, 81)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              cursor: 'pointer',
+              transition: 'background-color 150ms ease',
+            }}
           >
             Cancel
           </button>
