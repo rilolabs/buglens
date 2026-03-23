@@ -157,6 +157,28 @@ export const POST = createBugLensHandler({
 })
 ```
 
+## Theming
+
+BugLens uses CSS custom properties with sensible defaults. Override them in your app's CSS to match your design system:
+
+```css
+:root {
+  --buglens-primary: hsl(var(--primary));           /* accent color (buttons, FAB) */
+  --buglens-primary-hover: hsl(var(--primary) / 0.9);
+  --buglens-bg: hsl(var(--background));             /* panel & input backgrounds */
+  --buglens-bg-hover: hsl(var(--muted));            /* hover backgrounds */
+  --buglens-text: hsl(var(--foreground));            /* primary text */
+  --buglens-text-muted: hsl(var(--muted-foreground)); /* descriptions, placeholders */
+  --buglens-border: hsl(var(--border));             /* input borders */
+  --buglens-border-light: hsl(var(--border));       /* panel dividers */
+  --buglens-fab-bg: hsl(var(--primary) / 0.1);     /* FAB background */
+  --buglens-fab-bg-hover: hsl(var(--primary) / 0.2);
+  --buglens-fab-border: hsl(var(--primary) / 0.5);
+}
+```
+
+The example above maps to shadcn/ui CSS variables. Adapt to whatever your app uses. If you don't set any variables, BugLens defaults to a neutral blue/gray theme.
+
 ## Data attributes
 
 Add these to your components to enrich reports:

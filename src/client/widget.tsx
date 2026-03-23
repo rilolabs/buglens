@@ -26,6 +26,9 @@ interface CapturedData {
 
 const INITIAL_CAPTURE: CapturedData | null = null
 
+// CSS custom property helper — reads var with fallback at runtime
+const v = (name: string, fallback: string) => `var(--buglens-${name}, ${fallback})`
+
 export function BugLensWidget() {
   const { config } = useBugLens()
   const [mode, setMode] = useState<Mode>('idle')
@@ -97,8 +100,8 @@ export function BugLensWidget() {
             width: 40,
             height: 40,
             borderRadius: '50%',
-            border: '1px solid rgba(59, 130, 246, 0.5)',
-            backgroundColor: fabHover ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+            border: `1px solid ${v('fab-border', 'rgba(59, 130, 246, 0.5)')}`,
+            backgroundColor: fabHover ? v('fab-bg-hover', 'rgba(59, 130, 246, 0.2)') : v('fab-bg', 'rgba(59, 130, 246, 0.1)'),
             boxShadow: fabHover ? '0 10px 25px -3px rgba(0,0,0,0.15)' : '0 4px 12px -1px rgba(0,0,0,0.1)',
             cursor: 'pointer',
             transition: 'all 150ms ease',
@@ -111,7 +114,7 @@ export function BugLensWidget() {
             height="16"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="rgb(37, 99, 235)"
+            stroke={v('primary', 'rgb(37, 99, 235)')}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -147,7 +150,7 @@ export function BugLensWidget() {
           <span
             style={{
               borderRadius: 9999,
-              backgroundColor: 'rgb(37, 99, 235)',
+              backgroundColor: v('primary', 'rgb(37, 99, 235)'),
               padding: '6px 12px',
               fontSize: 12,
               fontWeight: 500,
@@ -164,12 +167,12 @@ export function BugLensWidget() {
             style={{
               height: 32,
               borderRadius: 9999,
-              border: '1px solid rgb(209, 213, 219)',
-              backgroundColor: cancelHover ? 'rgb(243, 244, 246)' : 'white',
+              border: `1px solid ${v('border', 'rgb(209, 213, 219)')}`,
+              backgroundColor: cancelHover ? v('bg-hover', 'rgb(243, 244, 246)') : v('bg', 'white'),
               padding: '0 12px',
               fontSize: 12,
               fontWeight: 500,
-              color: 'rgb(55, 65, 81)',
+              color: v('text', 'rgb(55, 65, 81)'),
               boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
               cursor: 'pointer',
               transition: 'background-color 150ms ease',

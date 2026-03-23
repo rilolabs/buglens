@@ -7,14 +7,17 @@ import { useBugLens } from './provider'
 import type { BugLensReport, Severity } from './types'
 import { SEVERITY_LABELS } from './types'
 
+// CSS custom property helper — reads var with fallback at runtime
+const v = (name: string, fallback: string) => `var(--buglens-${name}, ${fallback})`
+
 const inputStyle: React.CSSProperties = {
   width: '100%',
   borderRadius: 6,
-  border: '1px solid rgb(209, 213, 219)',
+  border: `1px solid ${v('border', 'rgb(209, 213, 219)')}`,
   padding: '8px 12px',
   fontSize: 14,
-  color: 'rgb(17, 24, 39)',
-  backgroundColor: 'white',
+  color: v('text', 'rgb(17, 24, 39)'),
+  backgroundColor: v('bg', 'white'),
   outline: 'none',
   fontFamily: 'inherit',
   resize: 'vertical' as const,
@@ -23,7 +26,7 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 500,
-  color: 'rgb(17, 24, 39)',
+  color: v('text', 'rgb(17, 24, 39)'),
   display: 'block',
   marginBottom: 6,
 }
@@ -78,6 +81,8 @@ export function BugLensReportForm({
     }
   }
 
+  const disabled = !description.trim() || isSubmitting
+
   return (
     <Dialog.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <Dialog.Portal>
@@ -101,17 +106,17 @@ export function BugLensReportForm({
             flexDirection: 'column',
             height: '100%',
             width: 400,
-            backgroundColor: 'white',
+            backgroundColor: v('bg', 'white'),
             boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.12)',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
           }}
         >
           {/* Header */}
-          <div style={{ borderBottom: '1px solid rgb(229, 231, 235)', padding: '16px 24px' }}>
-            <Dialog.Title style={{ fontSize: 18, fontWeight: 600, color: 'rgb(17, 24, 39)', margin: 0 }}>
+          <div style={{ borderBottom: `1px solid ${v('border-light', 'rgb(229, 231, 235)')}`, padding: '16px 24px' }}>
+            <Dialog.Title style={{ fontSize: 18, fontWeight: 600, color: v('text', 'rgb(17, 24, 39)'), margin: 0 }}>
               Report an Issue
             </Dialog.Title>
-            <Dialog.Description style={{ marginTop: 4, fontSize: 14, color: 'rgb(107, 114, 128)' }}>
+            <Dialog.Description style={{ marginTop: 4, fontSize: 14, color: v('text-muted', 'rgb(107, 114, 128)') }}>
               Tell us what went wrong. A screenshot and technical details are captured automatically.
             </Dialog.Description>
           </div>
@@ -120,7 +125,7 @@ export function BugLensReportForm({
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {screenshot && (
-                <div style={{ borderRadius: 6, border: '1px solid rgb(229, 231, 235)', overflow: 'hidden' }}>
+                <div style={{ borderRadius: 6, border: `1px solid ${v('border-light', 'rgb(229, 231, 235)')}`, overflow: 'hidden' }}>
                   <img
                     src={screenshot}
                     alt="Page screenshot"
@@ -171,11 +176,11 @@ export function BugLensReportForm({
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       borderRadius: 6,
-                      border: '1px solid rgb(209, 213, 219)',
-                      backgroundColor: 'white',
+                      border: `1px solid ${v('border', 'rgb(209, 213, 219)')}`,
+                      backgroundColor: v('bg', 'white'),
                       padding: '0 12px',
                       fontSize: 14,
-                      color: 'rgb(17, 24, 39)',
+                      color: v('text', 'rgb(17, 24, 39)'),
                       cursor: 'pointer',
                       outline: 'none',
                     }}
@@ -183,7 +188,7 @@ export function BugLensReportForm({
                     <Select.Value />
                     <Select.Icon>
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M3 4.5L6 7.5L9 4.5" stroke="rgb(107, 114, 128)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke={v('text-muted', 'rgb(107, 114, 128)')} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </Select.Icon>
                   </Select.Trigger>
@@ -196,8 +201,8 @@ export function BugLensReportForm({
                         zIndex: 10001,
                         overflow: 'hidden',
                         borderRadius: 6,
-                        border: '1px solid rgb(229, 231, 235)',
-                        backgroundColor: 'white',
+                        border: `1px solid ${v('border-light', 'rgb(229, 231, 235)')}`,
+                        backgroundColor: v('bg', 'white'),
                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                       }}
                     >
@@ -212,7 +217,7 @@ export function BugLensReportForm({
                                 borderRadius: 4,
                                 padding: '8px 12px',
                                 fontSize: 14,
-                                color: 'rgb(17, 24, 39)',
+                                color: v('text', 'rgb(17, 24, 39)'),
                                 outline: 'none',
                               }}
                             >
@@ -229,12 +234,12 @@ export function BugLensReportForm({
           </div>
 
           {/* Footer */}
-          <div style={{ borderTop: '1px solid rgb(229, 231, 235)', padding: '16px 24px' }}>
+          <div style={{ borderTop: `1px solid ${v('border-light', 'rgb(229, 231, 235)')}`, padding: '16px 24px' }}>
             <button
               onClick={handleSubmit}
               onMouseEnter={() => setSubmitHover(true)}
               onMouseLeave={() => setSubmitHover(false)}
-              disabled={!description.trim() || isSubmitting}
+              disabled={disabled}
               style={{
                 display: 'flex',
                 width: '100%',
@@ -242,15 +247,15 @@ export function BugLensReportForm({
                 justifyContent: 'center',
                 gap: 8,
                 borderRadius: 6,
-                backgroundColor: (!description.trim() || isSubmitting)
-                  ? 'rgb(147, 167, 228)'
-                  : submitHover ? 'rgb(29, 78, 216)' : 'rgb(37, 99, 235)',
+                backgroundColor: disabled
+                  ? v('primary-disabled', 'rgb(147, 167, 228)')
+                  : submitHover ? v('primary-hover', 'rgb(29, 78, 216)') : v('primary', 'rgb(37, 99, 235)'),
                 padding: '8px 16px',
                 fontSize: 14,
                 fontWeight: 500,
                 color: 'white',
                 border: 'none',
-                cursor: (!description.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
+                cursor: disabled ? 'not-allowed' : 'pointer',
                 transition: 'background-color 150ms ease',
               }}
             >
