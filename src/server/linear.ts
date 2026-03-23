@@ -138,12 +138,9 @@ export function formatIssueBody(
   if (report.element.outerHTML) {
     sections.push('')
     sections.push(`## Element HTML`)
-    sections.push('<details><summary>Click to expand</summary>')
-    sections.push('')
     sections.push('```html')
     sections.push(report.element.outerHTML)
     sections.push('```')
-    sections.push('</details>')
   }
 
   return sections.join('\n')
