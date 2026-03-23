@@ -2,7 +2,21 @@
 
 Bug reporting widget for React apps. Click-to-select element inspector with automatic capture of screenshots, console errors, network failures, and DOM context. Creates Linear issues with full diagnostic data.
 
-## Setup (4 steps)
+## Quick setup with an AI coding agent
+
+Copy and paste this prompt into your coding agent (Claude Code, Cursor, etc.):
+
+> Install and integrate BugLens, a private bug reporting widget. Read the README at `node_modules/buglens/README.md` for full documentation. Here's what to do:
+>
+> 1. Run `npm install git+ssh://git@github-consulting:rilolabs/buglens.git`
+> 2. Create an API route at `app/api/buglens/report/route.ts` using `createBugLensHandler` from `buglens/next`. Wire the `authorize` callback into this project's existing server-side auth to verify the user and return their email.
+> 3. Add `<BugLensProvider>` to the app's root or dashboard layout. If this project has a role-based auth system, set `canReport` to only show the widget to admins. If not, leave it as the default (always visible).
+> 4. Add the BugLens Tailwind content path so styles compile correctly.
+> 5. Add these env vars to `.env.local` (ask me for the values): `LINEAR_API_KEY`, `LINEAR_BUGLENS_TEAM_ID`, and optionally `LINEAR_BUGLENS_PROJECT_ID` and `LINEAR_BUGLENS_LABEL_ID`.
+
+The agent will read the README, understand your project's auth system, and wire everything up accordingly.
+
+## Manual setup
 
 ### 1. Install
 
@@ -37,21 +51,26 @@ import { BugLensProvider } from 'buglens/client'
 
 export default function Layout({ children }) {
   return (
-    <BugLensProvider
-      canReport={async () => {
-        const res = await fetch('/api/auth/me')
-        const user = await res.json()
-        return user?.role === 'admin'
-      }}
-      reporterEmail="user@example.com"
-      onSuccess={(result) => toast.success(`Reported: ${result.issueIdentifier}`)}
-      onError={(err) => toast.error(err.message)}
-    >
+    <BugLensProvider>
       {children}
     </BugLensProvider>
   )
 }
 ```
+
+To gate visibility to admins, add a `canReport` callback:
+
+```tsx
+<BugLensProvider
+  canReport={async () => {
+    const res = await fetch('/api/auth/me')
+    const user = await res.json()
+    return user?.role === 'admin'
+  }}
+>
+```
+
+Toast notifications use [sonner](https://sonner.emilkowal.dev/) automatically if installed. No `onSuccess`/`onError` config needed.
 
 ### 4. Set environment variables
 
