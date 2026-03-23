@@ -12,7 +12,7 @@ Copy and paste this prompt into your coding agent (Claude Code, Cursor, etc.):
 > 2. Create an API route at `app/api/buglens/report/route.ts` using `createBugLensHandler` from `buglens/next`. Wire the `authorize` callback into this project's existing server-side auth to verify the user and return their email.
 > 3. Add `<BugLensProvider>` to the app's root or dashboard layout. If this project has a role-based auth system, set `canReport` to only show the widget to admins. If not, leave it as the default (always visible).
 > 4. Add the BugLens Tailwind content path so styles compile correctly.
-> 5. Add these env vars to `.env.local` (ask me for the values): `LINEAR_API_KEY`, `LINEAR_BUGLENS_TEAM_ID`, and optionally `LINEAR_BUGLENS_PROJECT_ID` and `LINEAR_BUGLENS_LABEL_ID`.
+> 5. Tell me which env vars I need to add to `.env.local` for BugLens. Don't ask me for the values — I'll configure them myself.
 
 The agent will read the README, understand your project's auth system, and wire everything up accordingly.
 
