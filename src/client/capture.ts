@@ -70,7 +70,6 @@ export async function captureScreenshot(selectedElement: Element | null): Promis
         height: `${rect.height + 6}px`,
         border: '3px solid rgb(239, 68, 68)',
         borderRadius: '6px',
-        backgroundColor: 'rgba(239, 68, 68, 0.08)',
         zIndex: '9998',
         pointerEvents: 'none',
       })
