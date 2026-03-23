@@ -6,17 +6,17 @@
   "exports": {
     "./client": {
       "types": "./dist/client/index.d.ts",
-      "import": "./dist/client/index.mjs",
+      "import": "./dist/client/index.js",
       "require": "./dist/client/index.cjs"
     },
     "./server": {
       "types": "./dist/server/index.d.ts",
-      "import": "./dist/server/index.mjs",
+      "import": "./dist/server/index.js",
       "require": "./dist/server/index.cjs"
     },
     "./next": {
       "types": "./dist/next/index.d.ts",
-      "import": "./dist/next/index.mjs",
+      "import": "./dist/next/index.js",
       "require": "./dist/next/index.cjs"
     }
   },
