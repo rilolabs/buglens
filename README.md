@@ -7,8 +7,10 @@ Bug reporting widget for React apps. Click-to-select element inspector with auto
 ### 1. Install
 
 ```bash
-npm install github:rilolabs/buglens
+npm install git+ssh://git@github-consulting:rilolabs/buglens.git
 ```
+
+> **Note:** This uses the `github-consulting` SSH host alias so npm clones with the correct SSH key for the `@rilolabs` identity. Do not use the `github:rilolabs/buglens` shorthand — it resolves to `git@github.com:...` which bypasses the multi-account SSH setup.
 
 ### 2. Add the API route
 
