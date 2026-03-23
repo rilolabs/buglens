@@ -15,6 +15,8 @@ export interface LinearConfig {
   apiKey?: string
   teamId?: string
   labelId?: string
+  /** Linear project ID. Routes issues to a specific project within the team. */
+  projectId?: string
 }
 
 async function linearQuery(
@@ -215,6 +217,7 @@ export async function createLinearIssue(
   const apiKey = config.apiKey || process.env.LINEAR_API_KEY
   const teamId = config.teamId || process.env.LINEAR_BUGLENS_TEAM_ID
   const labelId = config.labelId || process.env.LINEAR_BUGLENS_LABEL_ID
+  const projectId = config.projectId || process.env.LINEAR_BUGLENS_PROJECT_ID
 
   if (!apiKey || !teamId) {
     throw new Error(
@@ -234,7 +237,7 @@ export async function createLinearIssue(
         issue { id identifier url }
       }
     }
-  `, { input: { teamId, title, description: body, priority, labelIds } })
+  `, { input: { teamId, title, description: body, priority, labelIds, projectId: projectId || undefined } })
 
   const issue = (result.data?.issueCreate as Record<string, unknown>)?.issue as {
     id: string; identifier: string; url: string

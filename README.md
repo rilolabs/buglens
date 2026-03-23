@@ -59,7 +59,36 @@ export default function Layout({ children }) {
 LINEAR_API_KEY=lin_api_xxxxx
 LINEAR_BUGLENS_TEAM_ID=<your-team-uuid>
 LINEAR_BUGLENS_LABEL_ID=<optional-label-uuid>
+LINEAR_BUGLENS_PROJECT_ID=<optional-project-uuid>
 ```
+
+> **Multi-project setup:** If you have one Linear team but multiple apps, set `LINEAR_BUGLENS_PROJECT_ID` per app so issues route to the correct Linear project. The API key and team ID can be shared across all apps.
+
+#### Where to find these values in Linear
+
+**`LINEAR_API_KEY`** — Your personal API key:
+1. Click your avatar in the bottom-left corner of Linear
+2. Go to **Settings > Account > Security & Access**
+3. Scroll to **Personal API keys** and click **New API key**
+4. Name it (e.g., "BugLens") and copy immediately — it won't be shown again
+
+**`LINEAR_BUGLENS_TEAM_ID`** — The team UUID (not the short key like `ENG`):
+1. Navigate to the team in the Linear sidebar
+2. Press **Cmd+K** to open the command palette
+3. Type **"Copy model UUID"** and select it
+4. Choose your team name — the UUID is now on your clipboard
+
+**`LINEAR_BUGLENS_PROJECT_ID`** — The project UUID (optional):
+1. Navigate to the project in Linear (sidebar > Projects)
+2. Press **Cmd+K** > type **"Copy model UUID"**
+3. Select the project name — UUID copied
+
+**`LINEAR_BUGLENS_LABEL_ID`** — A label UUID to auto-tag issues (optional):
+1. Navigate to any issue with that label, or go to **Settings > Workspace > Labels**
+2. Press **Cmd+K** > type **"Copy model UUID"**
+3. Select the label — UUID copied
+
+> **Tip:** The **Cmd+K > "Copy model UUID"** trick works for teams, projects, labels, cycles, and most Linear entities. The results are context-sensitive — navigate to the entity's page first.
 
 ### 5. Add Tailwind content path
 
@@ -96,25 +125,25 @@ content: [
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `canReport` | `() => Promise<boolean>` | `() => true` | Controls widget visibility |
-| `reporterEmail` | `string` | `'anonymous'` | Email attached to reports |
 | `apiEndpoint` | `string` | `'/api/buglens/report'` | API route path |
 | `isTrackableUrl` | `(url: string) => boolean` | `url.includes('/api/')` | Filter for API activity tracking |
-| `onSuccess` | `(result) => void` | `window.alert` | Called on successful submission |
-| `onError` | `(error: Error) => void` | `window.alert` | Called on submission failure |
+| `onSuccess` | `(result) => void` | sonner toast (falls back to alert) | Called on successful submission |
+| `onError` | `(error: Error) => void` | sonner toast (falls back to alert) | Called on submission failure |
 
 ### createBugLensHandler options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `authorize` | `(req) => Promise<AuthResult>` | No auth check | Server-side authorization |
-| `storage` | `ScreenshotStorage` | Inline base64 | Screenshot upload adapter |
-| `linearApiKey` | `string` | `process.env.LINEAR_API_KEY` | Override env var |
-| `linearTeamId` | `string` | `process.env.LINEAR_BUGLENS_TEAM_ID` | Override env var |
-| `linearLabelId` | `string` | `process.env.LINEAR_BUGLENS_LABEL_ID` | Override env var |
+| `authorize` | `(req) => Promise<AuthResult>` | No auth check | Server-side auth; returned `email` is injected into the report |
+| `storage` | `ScreenshotStorage` | Uploads to Linear | Custom screenshot storage adapter |
+| `linear.apiKey` | `string` | `process.env.LINEAR_API_KEY` | Override env var |
+| `linear.teamId` | `string` | `process.env.LINEAR_BUGLENS_TEAM_ID` | Override env var |
+| `linear.labelId` | `string` | `process.env.LINEAR_BUGLENS_LABEL_ID` | Override env var |
+| `linear.projectId` | `string` | `process.env.LINEAR_BUGLENS_PROJECT_ID` | Route issues to a specific Linear project |
 
 ### Screenshot storage adapter
 
-By default, screenshots are passed inline as base64 data URLs. To upload screenshots to external storage:
+By default, screenshots are uploaded to Linear's file storage (no config needed). To use custom storage instead:
 
 ```typescript
 export const POST = createBugLensHandler({
