@@ -79,6 +79,10 @@ export async function captureScreenshot(selectedElement: Element | null): Promis
 
     const { toPng } = await import('html-to-image')
     const fullPageDataUrl = await toPng(document.body, {
+      cacheBust: true,
+      // Render a transparent pixel for cross-origin images that can't be fetched
+      imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+      fetchRequestInit: { mode: 'cors' as RequestMode },
       filter: (el: HTMLElement) => !el.hasAttribute?.('data-buglens'),
     })
 
@@ -95,7 +99,9 @@ export async function captureScreenshot(selectedElement: Element | null): Promis
       document.body.scrollWidth
     )
   } catch (err) {
-    console.warn('[BugLens] Screenshot capture failed:', err)
+    // html-to-image fires an Event object on resource load failures (CORS, missing assets)
+    const msg = err instanceof Event ? `Resource load failed: ${(err as Event).type}` : err
+    console.warn('[BugLens] Screenshot capture failed:', msg)
     return null
   } finally {
     if (highlight) highlight.remove()
