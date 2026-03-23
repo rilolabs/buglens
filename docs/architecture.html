@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BugLens Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    padding: 48px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #f1f5f9;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 48px;
+  }
+  .diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .project-card {
+    background: #1a1d27;
+    border: 1px solid #2d3348;
+    border-radius: 16px;
+    padding: 28px;
+    width: 320px;
+    position: relative;
+  }
+  .project-card.next { border-color: #3b82f6; }
+  .project-card.vite { border-color: #a855f7; }
+  .project-card.api { border-color: #22c55e; border-width: 2px; width: 380px; }
+  .project-card.linear { border-color: #6366f1; width: 280px; }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+  .badge.next { background: #1e3a5f; color: #60a5fa; }
+  .badge.vite { background: #3b1d5e; color: #c084fc; }
+  .badge.api { background: #14532d; color: #4ade80; }
+  .badge.linear { background: #2e1065; color: #a78bfa; }
+  .badge.pkg { background: #1e293b; color: #94a3b8; }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 16px;
+  }
+  .code-block {
+    background: #0f1117;
+    border: 1px solid #2d3348;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    color: #94a3b8;
+    overflow-x: auto;
+  }
+  .code-block .kw { color: #c084fc; }
+  .code-block .str { color: #4ade80; }
+  .code-block .fn { color: #60a5fa; }
+  .code-block .cm { color: #475569; }
+  .code-block .tag { color: #f472b6; }
+
+  .arrow-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 0 20px;
+  }
+  .arrow-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .arrow-svg { width: 40px; height: 40px; }
+  .arrow-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #475569;
+    text-align: center;
+    margin-bottom: -20px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px dashed #2d3348;
+    margin: 8px 0;
+  }
+
+  .feature-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 12px;
+  }
+  .feature-list li {
+    font-size: 11px;
+    color: #94a3b8;
+    padding: 3px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .feature-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #334155;
+  }
+  .feature-list li.green::before { background: #22c55e; }
+  .feature-list li.blue::before { background: #3b82f6; }
+  .feature-list li.purple::before { background: #a855f7; }
+
+  .npm-package {
+    background: #1a1d27;
+    border: 1px solid #2d3348;
+    border-radius: 12px;
+    padding: 20px 28px;
+    text-align: center;
+    width: 280px;
+  }
+  .npm-package .card-title { font-size: 14px; }
+
+  .flow-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .connector {
+    width: 2px;
+    height: 32px;
+    background: linear-gradient(to bottom, #2d3348, #475569);
+    position: relative;
+  }
+  .connector::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #475569;
+    border-bottom: 2px solid #475569;
+    transform: rotate(45deg);
+  }
+
+  .horizontal-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .h-connector {
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(to right, #2d3348, #475569);
+    position: relative;
+  }
+  .h-connector::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: -3px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #475569;
+    border-bottom: 2px solid #475569;
+    transform: rotate(-45deg);
+  }
+  .h-connector.green { background: linear-gradient(to right, #14532d, #22c55e); }
+  .h-connector.green::after { border-color: #22c55e; }
+  .h-connector.blue { background: linear-gradient(to right, #1e3a5f, #3b82f6); }
+  .h-connector.blue::after { border-color: #3b82f6; }
+
+  .label-on-arrow {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 500;
+    color: #64748b;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .label-on-arrow.below { top: auto; bottom: -18px; }
+
+  /* Layout: two-path diagram */
+  .paths {
+    display: flex;
+    gap: 80px;
+    justify-content: center;
+  }
+  .path {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .path-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .path-label span {
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
+    color: #374151;
+    margin-top: 2px;
+  }
+
+  .vs-badge {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    align-self: center;
+  }
+
+  .shared-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    justify-content: center;
+  }
+
+  .merge-line {
+    width: 2px;
+    height: 24px;
+    background: #22c55e;
+  }
+
+  .wide-card {
+    width: 520px;
+  }
+
+  .env-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .env-item {
+    font-family: 'SF Mono', monospace;
+    font-size: 10px;
+    color: #4ade80;
+    background: #0f1117;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #1a2e1a;
+  }
+</style>
+</head>
+<body>
+
+<h1>BugLens Architecture</h1>
+<p class="subtitle">How the npm package + standalone API serves both Next.js and Vite projects</p>
+
+<div class="diagram">
+
+  <!-- NPM Package -->
+  <p class="section-label">npm package (installed in every project)</p>
+  <div class="row">
+    <div class="npm-package">
+      <span class="badge pkg">npm package</span>
+      <div class="card-title">buglens</div>
+      <div class="card-desc" style="margin-bottom:0">npm install github:rilolabs/buglens</div>
+      <ul class="feature-list" style="text-align:left">
+        <li class="blue"><strong>buglens/client</strong> &mdash; Provider, Widget, Overlay, Capture</li>
+        <li class="green"><strong>buglens/server</strong> &mdash; Linear service, formatIssueBody</li>
+        <li class="blue"><strong>buglens/next</strong> &mdash; createBugLensHandler (optional)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="connector" style="align-self:center"></div>
+
+  <!-- Two paths -->
+  <p class="section-label">two integration paths</p>
+  <div class="paths">
+
+    <!-- Path A: Next.js (local handler) -->
+    <div class="path">
+      <div class="path-label">Path A: Next.js projects<span>e.g. SFF Grant Reporting</span></div>
+
+      <div class="project-card next">
+        <span class="badge next">Next.js App</span>
+        <div class="card-title">SFF Grant Reporting</div>
+        <div class="card-desc">Next.js 15 &bull; App Router &bull; Supabase</div>
+
+        <div class="code-block">
+          <span class="cm">// app/layout.tsx</span><br>
+          &lt;<span class="tag">BugLensProvider</span>&gt;<br>
+          &nbsp;&nbsp;{children}<br>
+          &lt;/<span class="tag">BugLensProvider</span>&gt;
+        </div>
+
+        <hr class="divider">
+
+        <div class="code-block" style="margin-top:8px">
+          <span class="cm">// app/api/buglens/report/route.ts</span><br>
+          <span class="kw">export const</span> POST = <span class="fn">createBugLensHandler</span>({<br>
+          &nbsp;&nbsp;<span class="fn">authorize</span>: <span class="kw">async</span> () =&gt; {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// Supabase auth check</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> { authorized: <span class="kw">true</span>, email }<br>
+          &nbsp;&nbsp;}<br>
+          })
+        </div>
+
+        <ul class="feature-list">
+          <li class="green">Same-origin API route</li>
+          <li class="green">Server-side email injection</li>
+          <li class="green">No CORS needed</li>
+        </ul>
+      </div>
+
+      <div class="connector"></div>
+
+      <div class="project-card linear" style="width:320px">
+        <span class="badge linear">Linear API</span>
+        <div class="card-title">Linear GraphQL</div>
+        <div class="card-desc">Issue created with full diagnostic context</div>
+      </div>
+    </div>
+
+    <!-- VS -->
+    <div style="display:flex;align-items:center;padding-top:100px">
+      <span class="vs-badge">OR</span>
+    </div>
+
+    <!-- Path B: Vite via standalone API -->
+    <div class="path">
+      <div class="path-label">Path B: Any project (Vite, etc.)<span>e.g. PTA Volunteer Hub</span></div>
+
+      <div class="project-card vite">
+        <span class="badge vite">Vite SPA</span>
+        <div class="card-title">PTA Volunteer Hub</div>
+        <div class="card-desc">Vite &bull; React Router &bull; Supabase &bull; No backend</div>
+
+        <div class="code-block">
+          <span class="cm">// src/App.tsx</span><br>
+          &lt;<span class="tag">BugLensProvider</span><br>
+          &nbsp;&nbsp;<span class="fn">apiEndpoint</span>=<span class="str">"https://buglens-api.vercel.app/api/report"</span><br>
+          &nbsp;&nbsp;<span class="fn">reporterEmail</span>={user.email}<br>
+          &gt;<br>
+          &nbsp;&nbsp;{children}<br>
+          &lt;/<span class="tag">BugLensProvider</span>&gt;
+        </div>
+
+        <ul class="feature-list">
+          <li class="purple">No API route needed</li>
+          <li class="purple">Email passed client-side</li>
+          <li class="purple">Cross-origin fetch</li>
+        </ul>
+      </div>
+
+      <div class="connector"></div>
+
+      <div class="project-card api">
+        <span class="badge api">Standalone API</span>
+        <div class="card-title">buglens-api.vercel.app</div>
+        <div class="card-desc">Single Vercel serverless function &bull; shared by all non-Next.js projects</div>
+
+        <div class="code-block">
+          <span class="cm">// Auth: origin allowlist</span><br>
+          ALLOWED_ORIGINS=<span class="str">https://pta.example.com,<br>&nbsp;&nbsp;https://other-project.com,<br>&nbsp;&nbsp;http://localhost:5173</span>
+        </div>
+
+        <ul class="feature-list">
+          <li class="green">CORS + origin validation</li>
+          <li class="green">Linear API key in one place</li>
+          <li class="green">Deploy once, all projects use it</li>
+        </ul>
+      </div>
+
+      <div class="connector"></div>
+
+      <div class="project-card linear" style="width:320px">
+        <span class="badge linear">Linear API</span>
+        <div class="card-title">Linear GraphQL</div>
+        <div class="card-desc">Same issue format regardless of path</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom summary -->
+  <hr class="divider" style="margin-top:16px">
+
+  <div class="row" style="gap:24px; flex-wrap:wrap">
+    <div style="flex:1;min-width:300px">
+      <p class="section-label" style="text-align:left;margin-bottom:12px">What each project touches</p>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <thead>
+          <tr style="border-bottom:1px solid #2d3348">
+            <th style="text-align:left;padding:8px;color:#64748b">Step</th>
+            <th style="text-align:center;padding:8px;color:#60a5fa">Next.js (Path A)</th>
+            <th style="text-align:center;padding:8px;color:#c084fc">Vite (Path B)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #1e2130">
+            <td style="padding:8px;color:#94a3b8">npm install</td>
+            <td style="text-align:center;padding:8px">&#10003;</td>
+            <td style="text-align:center;padding:8px">&#10003;</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e2130">
+            <td style="padding:8px;color:#94a3b8">&lt;BugLensProvider&gt;</td>
+            <td style="text-align:center;padding:8px">&#10003;</td>
+            <td style="text-align:center;padding:8px">&#10003; + apiEndpoint</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e2130">
+            <td style="padding:8px;color:#94a3b8">API route file</td>
+            <td style="text-align:center;padding:8px">&#10003; (8 lines)</td>
+            <td style="text-align:center;padding:8px;color:#475569">not needed</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e2130">
+            <td style="padding:8px;color:#94a3b8">Env vars (Linear)</td>
+            <td style="text-align:center;padding:8px">&#10003; per project</td>
+            <td style="text-align:center;padding:8px;color:#475569">on the API only</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;color:#94a3b8">Tailwind content path</td>
+            <td style="text-align:center;padding:8px">&#10003;</td>
+            <td style="text-align:center;padding:8px">&#10003;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
